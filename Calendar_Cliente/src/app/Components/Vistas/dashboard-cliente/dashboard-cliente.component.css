@@ -1,5 +1,11 @@
 .lista-calendar{
-    margin-top: -24px;
+    margin-top: -24px;   
+}
 
-    
+:host ::ng-deep .disabled-date{
+    background-color: rgb(238, 238, 238);
+}
+
+:host ::ng-deep .disabled-date a{
+    color: rgb(22, 22, 22);
 }
