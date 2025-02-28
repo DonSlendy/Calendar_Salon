@@ -1,0 +1,15 @@
+<div class="container-sm">
+    <div class="row p-5">
+        <div class="col-md-7 col-sm-12 ">
+            <full-calendar  [options]="calendarOptions"></full-calendar><br>
+        </div>
+        <div class="col-md-5 col-sm-12 ">
+            <full-calendar class="lista-calendar" #calendar [options]="dateListCalendar"></full-calendar>
+
+            <p>{{fecha_select}}</p>
+            <button class="btn btn-success" (click)="toggleWeekends()">Días de semana</button>
+            <form action="">
+            </form>
+        </div>
+    </div>
+</div>
