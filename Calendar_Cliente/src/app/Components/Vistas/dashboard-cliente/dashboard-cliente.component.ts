@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { TareasEmpleadosService } from '../../../Services/tareas-empleados.service';
 
 //Modulos de fullcalendar
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core/index.js';
-
 import dayGridOptions from '@fullcalendar/daygrid';
 import interactionPluggin, { DateClickArg } from '@fullcalendar/interaction';
 import timePlugin from '@fullcalendar/timegrid';
@@ -20,7 +19,10 @@ import timePlugin from '@fullcalendar/timegrid';
   templateUrl: './dashboard-cliente.component.html',
   styleUrl: './dashboard-cliente.component.css'
 })
-export class DashboardClienteComponent {
+export class DashboardClienteComponent implements OnInit {
+  calendarOptions!: CalendarOptions;
+  dateListCalendar!: CalendarOptions;
+
   Tiempo_Servicios: { [key: string]: number } = {
     "01": 60,//1hora
     "02": 120,//2horas
@@ -46,46 +48,71 @@ export class DashboardClienteComponent {
   servicioEscogido_value: string = "00";
   servicioEscogido_text: string = "No escogió servicio";
 
-  EventosGuardados: any[] = [
-    { title: 'Corte de Cabello - Diana Franco', start: '2025-03-08T10:00:00', end: '2025-03-08T11:00:00' },
-    { title: 'Tinte de Cabelo - Diana Franco', start: '2025-03-08T12:00:00', end: '2025-03-08T13:00:00' },
-    { title: 'Pintado de Uñas para Manos - Paola Aparicio', start: '2025-03-08T14:00:00', end: '2025-03-08T15:00:00' },
-    { title: 'Exsfoliación para la Cara - Paola Aparicio', start: '2025-03-10T15:00:00', end: '2025-03-10T16:00:00' },
-    { title: 'Delineado de Ojos - Alejandra Fernández', start: '2025-03-10T17:00:00', end: '2025-03-10T17:00:00' },
-    { title: 'Maquillaje Facial - Alejandra Fernández', start: '2025-03-27T17:00:00', end: '2025-03-27T20:00:00' },
-    { title: 'Masaje de columna - Eduardo Cortez', start: '2025-03-01T00:00:00', end: '2025-03-01T24:00:00' },
-  ];
+  EventosGuardados: any[] = [];
 
   DiasBloqueados = ['2025-03-07', '2025-03-13', '2028-02-29'];
 
-  calendarOptions: CalendarOptions = {
-    locale: "eS",
-    initialView: 'dayGridMonth',
-    weekends: true,
-    plugins: [dayGridOptions, interactionPluggin],
-    dateClick: (arg) => this.handleDateClick(arg),
-    events: this.EventosGuardados,
-    dayMaxEvents: true,
-    selectAllow: this.fechasExcluidas.bind(this),
-    dayCellClassNames: this.setDayCellClassNames.bind(this),
-    //Esta propiedad deshabilita todos los días, 1=lunes, 2=martes..hiddenDays: [3,4],
-  };
+  constructor(private horariosService: TareasEmpleadosService,) { }
 
-  dateListCalendar: CalendarOptions = {
-    headerToolbar: {
-      start: '', // will normally be on the left. if RTL, will be on the right
-      center: '',
-      end: ''
-    },
-    initialView: 'timeGridDay',
-    weekends: true,
-    plugins: [dayGridOptions, interactionPluggin, timePlugin],
-    events: this.EventosGuardados,
-    selectable: true,
-    select: this.handleSelect.bind(this),
-    allDaySlot: false,
+  ngOnInit(): void {
+    const horarios = this.horariosService.getHorarios();
 
-  };
+    console.log(horarios);
+
+    const eventos: { title: string; start: any; end: any; color: any; }[] = [];
+
+    Object.keys(horarios).forEach(empleado => {
+      horarios[empleado].forEach((evento: { title: any; start: any; end: any; color: any; }) => {
+        eventos.push({
+          title: `${empleado}: ${evento.title}`,
+          start: evento.start,
+          end: evento.end,
+          color: evento.color
+        });
+      });
+    });
+
+    this.EventosGuardados = eventos;
+
+    this.calendarOptions = {
+      locale: "eS",//Coloca los datos en idioma español 
+      initialView: 'dayGridMonth', //La forma de como se visualizará, en este caso como un calendario
+      weekends: true, //días fines de semana activos: si
+      plugins: [dayGridOptions, interactionPluggin],//Los plugins sirven para darle funcionalidad extra, daygrid muestra el calendario en modo mensual e interaction sirve para poder hacerle click a las casillas del calendario
+      dateClick: (arg) => this.handleDateClick(arg),//Define que, si se hace click, ejecuta la función handleDateClick
+      events: eventos,//Los eventos son la información que cargan los datos dentro del calendario, 
+      //eventSources: [{ events: this.EventosGuardados }, { events: this.EventosGuardados2 }],
+      dayMaxEvents: true,
+      selectAllow: this.fechasExcluidas.bind(this),//Esta opción marca celdas que no se podrán seleccionar
+      dayCellClassNames: this.setDayCellClassNames.bind(this),//Esto les da a las fechas no seleccionadas una clase que las hace visibles
+      //Esta propiedad deshabilita todos los días, 1=lunes, 2=martes..hiddenDays: [3,4],
+    };
+
+    this.dateListCalendar = {
+      locale: "eS",//Coloca los datos en idioma español 
+      headerToolbar: {
+        start: '', // 
+        center: '',
+        end: ''
+      },
+      initialView: 'timeGridDay',
+      weekends: true,
+      plugins: [dayGridOptions, interactionPluggin, timePlugin],
+      events: eventos,
+      //eventSources: [{ events: this.EventosGuardados }, { events: this.EventosGuardados2 }],
+      selectable: true,
+      select: this.handleSelect.bind(this),
+      allDaySlot: false,
+      slotEventOverlap: false,
+
+      //Estas opciones serán para configurar la hora de inicio y la hora final para recibir citas:
+      slotMinTime: '06:00:00',
+      slotMaxTime: '23:00:00',
+
+      //Opciones para configurar el formato de como se muestra la hora:
+      slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: true }
+    };
+  }
 
   //Esta función es para cuando se hace click en una casilla del calendario
   handleDateClick(arg: DateClickArg) {
@@ -125,20 +152,36 @@ export class DashboardClienteComponent {
     const selectEnd = new Date(arg.end);
     const duration = (selectEnd.getTime() - selectStart.getTime()) / (1000 * 60);
 
-    if (this.eventoOcupado(arg.start, arg.end)) {
-      alert("La hora que deseas ya está ocupada, prueba con otra ");
-    } else {
+    const horarios = this.horariosService.getHorarios();
 
+    const empleados = Object.keys(horarios);
+
+    let empleadoDisponible = null;
+
+    for (let empleado of empleados) {
+      if (!this.eventoOcupado(arg.start, arg.end, horarios[empleado])) {
+        empleadoDisponible = empleado;
+        const empleadoColor = horarios[empleadoDisponible][empleado]?.color || "purple"; // Por defecto azul si no tiene color
+console.log(empleadoColor);
+        console.log(empleadoDisponible);
+        break;
+      }
+    }
+
+    if (empleadoDisponible) {
+      // const colorSelect:string=empleadoDisponible.color; 
       //Estas validaciones son solo para mostrar un mensaje personalizado dependiendo del tiempo escogido, mostrando el tiempo en horas
       if (duration > tiempoMax || duration < tiempoMax) {
         alert("El tiempo seleccionado para ese tratamiento no coincide, el tiempo estimado es de" + this.Tiempo_Servicios_Horas[this.servicioEscogido_value]);
       } else {
-        //const title = prompt("Ingrese tu nombre para agendar la cita: ");
-        //if (title) {
+        
+        const empleadoColor = horarios[empleadoDisponible][0]?.color || "purple"; // Por defecto azul si no tiene color
+
         const newEvent = {
           title: this.servicioEscogido_text + "-" + "NombreRecibidoPorElBot",
           start: arg.startStr,
           end: arg.endStr,
+          color: empleadoColor,
         };
         this.EventosGuardados = [
           ...this.EventosGuardados,
@@ -147,16 +190,20 @@ export class DashboardClienteComponent {
         // Forzar la actualización del listado
         this.dateListCalendar = {
           ...this.dateListCalendar,
+          //eventSources: [{ events: this.EventosGuardados }, { events: this.EventosGuardados2 }],
           events: this.EventosGuardados
         };
         console.log(this.EventosGuardados);
         //Para el calendario
         this.calendarOptions = {
           ...this.calendarOptions,
+          //eventSources: [{ events: this.EventosGuardados }, { events: this.EventosGuardados2 }],
           events: this.EventosGuardados
         }
         //}
       }
+    } else {
+      alert("La hora que deseas ya está ocupada, prueba con otra ");
     }
   }
 
@@ -166,10 +213,10 @@ export class DashboardClienteComponent {
   }
 
   //Función para verificar que no se pueda ingresar una fecha colindante con otro registro
-  eventoOcupado(start: any, end: any): boolean {
+  eventoOcupado(start: any, end: any, eventos: any[]): boolean {
 
     //Se usa la función some para verificar si existe algún dato guardado que choque con las fechas existentes, retorna TRUE
-    return this.EventosGuardados.some(event => {
+    return eventos.some(event => {
       //Estas dos variables obtienen el tiempo de cualquiera de los eventos guardados, tanto inicial como final
       const eventStart = new Date(event.start).getTime();
       const eventEnd = new Date(event.end).getTime();
@@ -181,8 +228,7 @@ export class DashboardClienteComponent {
       //Compara que el tiempo seleccionado no choque con el tiempo final de algún evento existente
       //También compara si el final del evento seleccionado no comience con el evento inicial de otro
       return (selectStart < eventEnd && selectEnd > eventStart);
-
-    })
+    });
   }
 
   obtenerFechaActual(): string {
