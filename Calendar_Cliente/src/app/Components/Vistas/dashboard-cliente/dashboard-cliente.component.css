@@ -1,11 +1,26 @@
-.lista-calendar{
-    margin-top: -24px;   
+.lista-calendar {
+    margin-top: -24px;
 }
 
-:host ::ng-deep .disabled-date{
+:host ::ng-deep .disabled-date {
     background-color: rgb(238, 238, 238);
 }
 
-:host ::ng-deep .disabled-date a{
+:host ::ng-deep .disabled-date a {
     color: rgb(22, 22, 22);
 }
+
+
+/*Este estilo encierra tanto el día como la fecha*/
+/*:host ::ng-deep .fc-col-header-cell {
+    background-color: darkblue;
+    border-radius: 100px;
+    padding: 10px;
+
+}
+
+
+:host ::ng-deep .fc-col-header-cell-cushion {
+    color: white !important;
+}*/
+

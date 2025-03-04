@@ -8,6 +8,8 @@ import { CalendarOptions } from '@fullcalendar/core/index.js';
 import dayGridOptions from '@fullcalendar/daygrid';
 import interactionPluggin, { DateClickArg } from '@fullcalendar/interaction';
 import timePlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
+import timeGridPlugin from '@fullcalendar/timegrid'
 
 @Component({
   selector: 'app-dashboard-cliente',
@@ -22,6 +24,8 @@ import timePlugin from '@fullcalendar/timegrid';
 export class DashboardClienteComponent implements OnInit {
   calendarOptions!: CalendarOptions;
   dateListCalendar!: CalendarOptions;
+
+  horariosActualizados: any = {};
 
   Tiempo_Servicios: { [key: string]: number } = {
     "01": 60,//1hora
@@ -55,14 +59,14 @@ export class DashboardClienteComponent implements OnInit {
   constructor(private horariosService: TareasEmpleadosService,) { }
 
   ngOnInit(): void {
-    const horarios = this.horariosService.getHorarios();
+    this.horariosActualizados = this.horariosService.getHorarios();
 
-    console.log(horarios);
+    console.log("Estos son los horarios, en const", this.horariosActualizados);
 
     const eventos: { title: string; start: any; end: any; color: any; }[] = [];
 
-    Object.keys(horarios).forEach(empleado => {
-      horarios[empleado].forEach((evento: { title: any; start: any; end: any; color: any; }) => {
+    Object.keys(this.horariosActualizados).forEach(empleado => {
+      this.horariosActualizados[empleado].forEach((evento: { title: any; start: any; end: any; color: any; }) => {
         eventos.push({
           title: `${empleado}: ${evento.title}`,
           start: evento.start,
@@ -102,6 +106,7 @@ export class DashboardClienteComponent implements OnInit {
       //eventSources: [{ events: this.EventosGuardados }, { events: this.EventosGuardados2 }],
       selectable: true,
       select: this.handleSelect.bind(this),
+      //eventClick: this.handleEventeClick.bind(this),
       allDaySlot: false,
       slotEventOverlap: false,
 
@@ -110,7 +115,7 @@ export class DashboardClienteComponent implements OnInit {
       slotMaxTime: '23:00:00',
 
       //Opciones para configurar el formato de como se muestra la hora:
-      slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: true }
+      slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: true },
     };
   }
 
@@ -152,18 +157,14 @@ export class DashboardClienteComponent implements OnInit {
     const selectEnd = new Date(arg.end);
     const duration = (selectEnd.getTime() - selectStart.getTime()) / (1000 * 60);
 
-    const horarios = this.horariosService.getHorarios();
+    const empleados = Object.keys(this.horariosActualizados);
+    console.log("estos son los empleados y sus horarios:", empleados, this.horariosActualizados);
 
-    const empleados = Object.keys(horarios);
+    let empleadoDisponible: string | null = null;
 
-    let empleadoDisponible = null;
-
-    for (let empleado of empleados) {
-      if (!this.eventoOcupado(arg.start, arg.end, horarios[empleado])) {
+    for (const empleado of empleados) {
+      if (!this.eventoOcupado(arg.start, arg.end, this.horariosActualizados[empleado])) {
         empleadoDisponible = empleado;
-        const empleadoColor = horarios[empleadoDisponible][empleado]?.color || "purple"; // Por defecto azul si no tiene color
-console.log(empleadoColor);
-        console.log(empleadoDisponible);
         break;
       }
     }
@@ -174,38 +175,45 @@ console.log(empleadoColor);
       if (duration > tiempoMax || duration < tiempoMax) {
         alert("El tiempo seleccionado para ese tratamiento no coincide, el tiempo estimado es de" + this.Tiempo_Servicios_Horas[this.servicioEscogido_value]);
       } else {
-        
-        const empleadoColor = horarios[empleadoDisponible][0]?.color || "purple"; // Por defecto azul si no tiene color
 
+        const empleadoColor = this.horariosActualizados[empleadoDisponible][0]?.color || "purple"; // Por defecto azul si no tiene color
+
+        console.log("El empleado asignado fue:", empleadoDisponible);
         const newEvent = {
-          title: this.servicioEscogido_text + "-" + "NombreRecibidoPorElBot",
+          title: empleadoDisponible + ": " + this.servicioEscogido_text + " - " + "NombreRecibidoPorElBot",
           start: arg.startStr,
           end: arg.endStr,
           color: empleadoColor,
         };
+
+        this.horariosActualizados[empleadoDisponible] = [
+          ...this.horariosActualizados[empleadoDisponible],
+          newEvent
+        ];
+
         this.EventosGuardados = [
           ...this.EventosGuardados,
           newEvent
         ];
+
         // Forzar la actualización del listado
         this.dateListCalendar = {
           ...this.dateListCalendar,
-          //eventSources: [{ events: this.EventosGuardados }, { events: this.EventosGuardados2 }],
           events: this.EventosGuardados
         };
-        console.log(this.EventosGuardados);
+
         //Para el calendario
         this.calendarOptions = {
           ...this.calendarOptions,
-          //eventSources: [{ events: this.EventosGuardados }, { events: this.EventosGuardados2 }],
           events: this.EventosGuardados
         }
-        //}
       }
     } else {
       alert("La hora que deseas ya está ocupada, prueba con otra ");
     }
   }
+
+  //
 
   //Esta función es para ocultar los fines de semana o mostrarlos.
   toggleWeekends() {
@@ -214,9 +222,10 @@ console.log(empleadoColor);
 
   //Función para verificar que no se pueda ingresar una fecha colindante con otro registro
   eventoOcupado(start: any, end: any, eventos: any[]): boolean {
-
+    console.log("El EVento eventoOcupado", eventos);
     //Se usa la función some para verificar si existe algún dato guardado que choque con las fechas existentes, retorna TRUE
     return eventos.some(event => {
+      console.log("El event", event);
       //Estas dos variables obtienen el tiempo de cualquiera de los eventos guardados, tanto inicial como final
       const eventStart = new Date(event.start).getTime();
       const eventEnd = new Date(event.end).getTime();

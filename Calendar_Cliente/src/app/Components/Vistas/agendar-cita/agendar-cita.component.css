@@ -1,0 +1,25 @@
+:host ::ng-deep .fc-col-header {
+    align-items: center; /* Alinea los círculos verticalmente */
+    justify-content: space-around; /* Distribuye los círculos uniformemente */
+
+}
+
+:host ::ng-deep .fc-col-header-cell {
+    
+    border-radius: 100%; /* Hace que las celdas sean circulares */
+    padding: 40px;
+
+    justify-content: center; /* Centra horizontalmente el texto */
+    align-items: center; /* Centra verticalmente el texto */
+    
+    background-color: darkblue; /* Fondo del círculo */
+    font-weight: bold; /* Resalta el texto */
+    overflow: hidden; /* Evita cualquier contenido que sobresalga */
+    border: 2px solid lightblue; /* Borde opcional */
+}
+
+:host ::ng-deep .fc-col-header-cell-cushion {
+    text-align: center; /* Centra el texto dentro de cada círculo */
+    color: white; /* Color del texto */
+
+}
