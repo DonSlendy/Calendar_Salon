@@ -1,1 +1,11 @@
-<full-calendar  [options]="calendarioInLine"></full-calendar><br>
+<div class="container-sm">
+    <div class="row">
+        <div class="col-md-7">
+            <full-calendar class="days-calendar" [options]="calendarioInLine" #days_calendar></full-calendar>
+            <full-calendar class="lista-calendar" #list_calendar [options]="dateListCalendar"></full-calendar>
+        </div>
+        <div class="col-md-5">
+
+        </div>
+    </div>
+</div>

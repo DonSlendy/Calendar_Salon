@@ -1,25 +1,121 @@
-:host ::ng-deep .fc-col-header {
-    align-items: center; /* Alinea los círculos verticalmente */
-    justify-content: space-around; /* Distribuye los círculos uniformemente */
 
+
+:host ::ng-deep .number-element {
+    background-color: darkblue;
+    border-radius: 50%;
+    width: 4vw;
+    /* Usamos vw para que el ancho sea relativo al tamaño de la ventana */
+    height: 4vw;
+    /* Igualamos el alto al ancho para mantener el círculo */
+    max-width: 100px;
+    /* Limita el tamaño máximo */
+    max-height: 100px;
+    /* Limita el tamaño máximo */
+    min-width: 50px;
+    /* Establece un tamaño mínimo */
+    min-height: 50px;
+    /* Establece un tamaño mínimo */
+
+    display: flex;
+    /* Cambia a flex */
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 2vmax;
+    overflow: hidden;
+    border: 1px solid lightblue;
+    color: white;
 }
 
-:host ::ng-deep .fc-col-header-cell {
-    
-    border-radius: 100%; /* Hace que las celdas sean circulares */
-    padding: 40px;
+:host ::ng-deep .fc-day-today .number-element{
+background-color: rgb(75, 188, 223);
+}
 
-    justify-content: center; /* Centra horizontalmente el texto */
-    align-items: center; /* Centra verticalmente el texto */
-    
-    background-color: darkblue; /* Fondo del círculo */
-    font-weight: bold; /* Resalta el texto */
-    overflow: hidden; /* Evita cualquier contenido que sobresalga */
-    border: 2px solid lightblue; /* Borde opcional */
+:host ::ng-deep .container-fechas {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Alinea horizontalmente los elementos */
+    align-items: center;
+    /* Alinea verticalmente los elementos (opcional) */
+    padding: 0;
+    cursor: pointer;
+}
+
+:host ::ng-deep .touch-date .number-element{
+    background-color: rgb(192, 77, 196);
+    border: 1px solid lightblue;
+}
+
+:host ::ng-deep .clase-prueba .number-element{
+    background-color: rgb(192, 77, 196);
+    border: 1px solid lightblue;
 }
 
 :host ::ng-deep .fc-col-header-cell-cushion {
-    text-align: center; /* Centra el texto dentro de cada círculo */
-    color: white; /* Color del texto */
+    padding: 0;
+}
 
+:host ::ng-deep th.fc-col-header-cell {
+    padding: 1px;
+    /* Ajusta este valor según necesites */
+    box-sizing: border-box;
+    /* Asegura que el padding no provoque desbordamientos */
+    overflow: hidden;
+    /* Previene el desbordamiento */
+}
+
+/*
+, :host ::ng-deep 
+*/
+:host ::ng-deep .days-calendar tbody{
+    display: none;
+    height: 0;
+}
+
+:host ::ng-deep .days-calendar div.fc-view-harness {
+    height: 110px!important;
+}
+
+:host ::ng-deep .days-calendar.fc-theme-standard .fc-scrollgrid{
+    border:none;
+}
+
+:host ::ng-deep .days-calendar th {
+    border: none; /* Elimina el borde de las celdas individuales */
+}
+
+:host ::ng-deep .days-calendar td {
+    border: none; /* Elimina el borde de las celdas individuales */
+}
+
+:host ::ng-deep .fc-toolbar-title{
+    padding: 10px;
+}
+
+@media (max-width: 600px) {
+    :host ::ng-deep .number-element {
+        width: 2vw;
+        /* Ajusta el tamaño para pantallas más pequeñas */
+        height: 2vw;
+
+        /* Igualamos el alto al ancho para mantener el círculo */
+        max-width: none;
+        /* Limita el tamaño máximo */
+        max-height: none;
+        /* Limita el tamaño máximo */
+        min-width: none;
+        /* Establece un tamaño mínimo */
+        min-height: none;
+        /* Establece un tamaño mínimo */
+    }
+}
+
+@media (max-width: 320px) {
+    :host ::ng-deep .number-element {
+        min-width: 35px;
+    /* Establece un tamaño mínimo */
+    min-height: 35px;
+    /* Establece un tamaño mínimo */
+    }
 }
