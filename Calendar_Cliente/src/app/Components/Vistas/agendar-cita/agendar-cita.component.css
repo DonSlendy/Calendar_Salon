@@ -104,17 +104,20 @@
     padding: 10px;
 }
 
-:host ::ng-deep .fc-button {
-    padding: 0;
-    margin: 3px;
-}
-
 :host ::ng-deep .fc-icon-bi {
     margin: 0;
     text-align: center;
     justify-content: center;
     margin-top: -6px;
-    font-size: 2.2rem !important;
+}
+
+:host ::ng-deep button{
+    border-radius: 5px!important;
+    margin: 1px!important;
+    border: 0px!important;
+}
+
+:host ::ng-deep .bi-chevron-left{
 }
 
 @media (max-width: 600px) {
@@ -135,11 +138,20 @@
     }
 }
 
+@media (max-width: 360px) {
+    :host ::ng-deep .number-element {
+        min-width: 45px;
+        /* Establece un tamaño mínimo */
+        min-height: 45px;
+        /* Establece un tamaño mínimo */
+    }
+}
+
 @media (max-width: 320px) {
     :host ::ng-deep .number-element {
-        min-width: 35px;
+        min-width: 40px;
         /* Establece un tamaño mínimo */
-        min-height: 35px;
+        min-height: 40px;
         /* Establece un tamaño mínimo */
     }
 }

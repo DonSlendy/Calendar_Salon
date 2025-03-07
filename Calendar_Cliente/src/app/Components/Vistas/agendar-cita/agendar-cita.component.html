@@ -1,6 +1,20 @@
 <div class="container-sm">
     <div class="row">
         <div class="col-md-7">
+            <select class="form-select" aria-label="Default select example" (change)="serviciosSalon($event)">
+                <option value="" disabled selected>Escoge una opción (simulación)</option>
+                <option value="01">Alisado de cabello</option>
+                <option value="02">Uñas acrílicas</option>
+                <option value="03">Alisado y tintado</option>
+                <option value="04">BabyLights</option>
+                <option value="05">Pedicure</option>
+            </select>
+            <p *ngIf="servicioEscogido_text == 'No escogió servicio'; else servicioEscogido">
+                Escoge un servicio para ver el tiempo estimado de su duración
+            </p>
+            <ng-template #servicioEscogido>
+                <p>El servicio de {{servicioEscogido_text}} tarda un apróximado de {{Tiempo_Servicios_Horas[servicioEscogido_value]}}</p>
+            </ng-template>
             <full-calendar class="days-calendar" [options]="calendarioInLine" #days_calendar></full-calendar>
             <full-calendar class="lista-calendar" #list_calendar [options]="dateListCalendar"></full-calendar>
         </div>
