@@ -13,13 +13,40 @@
                 Escoge un servicio para ver el tiempo estimado de su duración
             </p>
             <ng-template #servicioEscogido>
-                <p>El servicio de {{servicioEscogido_text}} tarda un apróximado de {{Tiempo_Servicios_Horas[servicioEscogido_value]}}</p>
+                <p>El servicio de {{servicioEscogido_text}} tarda un apróximado de
+                    {{Tiempo_Servicios_Horas[servicioEscogido_value]}}</p>
             </ng-template>
+            <input type="date">
             <full-calendar class="days-calendar" [options]="calendarioInLine" #days_calendar></full-calendar>
             <full-calendar class="lista-calendar" #list_calendar [options]="dateListCalendar"></full-calendar>
         </div>
         <div class="col-md-5">
-            
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true"
+    >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Términos y condiciones</h5>
+            </div>
+            <div class="modal-body">
+               <full-calendar class="pickdate-calendar" [options]="pickDateCalendar"></full-calendar>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="flexCheckDefault"
+                        (change)="checboxChekeado($event)">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Acepto los términos y condiciones
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    [disabled]="!chekeada">Continuar</button>
+            </div>
         </div>
     </div>
 </div>

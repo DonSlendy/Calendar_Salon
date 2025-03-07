@@ -73,9 +73,6 @@
     /* Previene el desbordamiento */
 }
 
-/*
-, :host ::ng-deep 
-*/
 :host ::ng-deep .days-calendar tbody {
     display: none;
     height: 0;
@@ -86,10 +83,12 @@
     margin-bottom: 60px;
 }
 
+/*Elimina los bordes de top y left*/
 :host ::ng-deep .days-calendar.fc-theme-standard .fc-scrollgrid {
     border: none;
 }
 
+/*Elimina los bordes laterales de las fechas*/
 :host ::ng-deep .days-calendar th {
     border: none;
     /* Elimina el borde de las celdas individuales */
@@ -97,7 +96,6 @@
 
 :host ::ng-deep .days-calendar td {
     border: none;
-    /* Elimina el borde de las celdas individuales */
 }
 
 :host ::ng-deep .fc-toolbar-title {
@@ -115,9 +113,6 @@
     border-radius: 5px!important;
     margin: 1px!important;
     border: 0px!important;
-}
-
-:host ::ng-deep .bi-chevron-left{
 }
 
 @media (max-width: 600px) {

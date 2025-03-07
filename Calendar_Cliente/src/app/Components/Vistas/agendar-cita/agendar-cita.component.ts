@@ -7,6 +7,9 @@ import interactionPluggin, { DateClickArg } from '@fullcalendar/interaction';
 import { CommonModule } from '@angular/common';
 import { TareasEmpleadosService } from '../../../Services/tareas-empleados.service';
 
+import { Modal } from 'bootstrap'//Elemento modal de bootstrap
+
+
 
 @Component({
   selector: 'app-agendar-cita',
@@ -18,6 +21,7 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
 
   calendarioInLine!: CalendarOptions;
   dateListCalendar!: CalendarOptions;
+  pickDateCalendar!: CalendarOptions;
 
   @ViewChild('days_calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('list_calendar') dateListComponent!: FullCalendarComponent;
@@ -56,6 +60,9 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
 
   constructor(private horariosService: TareasEmpleadosService,) { }
 
+  chekeada: boolean = false;
+
+
   ngOnInit(): void {
     this.horariosActualizados = this.horariosService.getHorarios();
 
@@ -73,14 +80,13 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
     });
 
     this.EventosGuardados = eventos;
+    const HorasBloqueadas = ["2025-03-07T12:00:00", "2025-03-07T15:00:00",];
 
     this.calendarioInLine = {
       locale: "eS",
       initialView: "dayGridWeek",
-      //headerToolbar: false,
       dayHeaders: true,
       plugins: [dayGridOptions, interactionPluggin],
-      //events: eventos
       dayHeaderFormat: { weekday: 'long', day: "2-digit" }, // Formato de encabezado (solo día)
       titleFormat: { year: 'numeric', month: 'long' }, // Muestra solo mes y año
 
@@ -146,7 +152,14 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
       themeSystem: "bootstrap5",
       customButtons: {
         calendar: {
-          icon: "bi bi-calendar-week"
+          icon: "bi bi-calendar-week",
+          click: () => {
+            const modalElement = document.getElementById('myModal');
+            if (modalElement) {
+              const myModal = new Modal(modalElement);
+              myModal.show(); // Abre el modal automáticamente
+            }
+          }
         },
         customPrev: {
           icon: 'bi bi-chevron-left',
@@ -252,7 +265,13 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
       },
       firstDay: this.obtenerFechaActual(),
     }
-    const HorasBloqueadas = ["2025-03-07T12:00:00", "2025-03-07T15:00:00"];
+
+    this.pickDateCalendar={
+      locale: "eS",//Coloca los datos en idioma español 
+      initialView: 'dayGridMonth', //La forma de como se visualizará, en este caso como un calendario
+      weekends: true, //días fines de semana activos: si
+      plugins: [dayGridOptions, interactionPluggin],
+    }
 
     this.dateListCalendar = {
       locale: "eS",//Coloca los datos en idioma español 
@@ -283,10 +302,19 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
         const inicioSeleccionado = new Date(selectInfo.start).toISOString().split(".")[0];
         const finSeleccionado = new Date(selectInfo.end).toISOString().split(".")[0];
 
+        /*
+        const selectEnd = new Date(selectStart.getTime() + tiempoMax * 60 * 1000);
+      const newEvent = {
+        title: empleadoDisponible + ": " + this.servicioEscogido_text + " - " + "NombreRecibidoPorElBot",
+        start: selectStart.toISOString(),
+        end:selectEnd.toISOString(),
+        color: empleadoColor,
+      };
+        */
 
-        for (const horaBloqueada of HorasBloqueadas){
+        for (const horaBloqueada of HorasBloqueadas) {
           const bloqueada = new Date(horaBloqueada).toISOString().split(".")[0];
-          if(bloqueada >= inicioSeleccionado && bloqueada < finSeleccionado){
+          if (bloqueada >= inicioSeleccionado && bloqueada < finSeleccionado) {
             return false;
           }
         }
@@ -339,16 +367,17 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
 
   handleSelect(arg: any) {
     const tiempoMax = this.Tiempo_Servicios[this.servicioEscogido_value];
-    const selectStart = new Date(arg.start);
-    const selectEnd = new Date(arg.end);
+    const selectStart = new Date(arg.start);//Esta constante representa la hora a la que se le hace click
+    const selectEnd = new Date(selectStart.getTime() + tiempoMax * 60 * 1000);
     const duration = (selectEnd.getTime() - selectStart.getTime()) / (1000 * 60);
 
     const empleados = Object.keys(this.horariosActualizados);
 
     let empleadoDisponible: string | null = null;
 
+    //Verifica la existencia de un empleado con horario disponible para ese servicio
     for (const empleado of empleados) {
-      if (!this.eventoOcupado(arg.start, arg.end, this.horariosActualizados[empleado])) {
+      if (!this.eventoOcupado(selectStart, selectEnd, this.horariosActualizados[empleado])) {
         empleadoDisponible = empleado;
         break;
       }
@@ -365,8 +394,8 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
 
         const newEvent = {
           title: empleadoDisponible + ": " + this.servicioEscogido_text + " - " + "NombreRecibidoPorElBot",
-          start: arg.startStr,
-          end: arg.endStr,
+          start: selectStart.toISOString(),
+          end: selectEnd.toISOString(),
           color: empleadoColor,
         };
 
@@ -453,7 +482,12 @@ export class AgendarCitaComponent implements OnInit, AfterViewInit {
     if (selectValue) {
       this.servicioEscogido_text = selectValue.options[selectValue.selectedIndex].text;
       this.servicioEscogido_value = selectValue.value;
-    } 
+    }
+  }
+
+  checboxChekeado(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.chekeada = inputElement.checked;
   }
 
 }
